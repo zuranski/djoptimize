@@ -599,11 +599,11 @@ void CL95Calc::Init(UInt_t seed){
   mbMakePlot = false;
   mbGaussianStatistics = false;
   mNClsSteps = 10;
-  mNToys = 3000;
+  mNToys = 1000;
   mNToysRatio = 2.0;
   mCalculatorType = 0;
   mTestStatType = 3;
-  mVerbosity = 3;
+  mVerbosity = 0;
   mRandomSeed = 1234;
   mConfidenceLevel = 0.95;
 
