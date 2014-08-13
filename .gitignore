@@ -2,3 +2,5 @@
 *.so
 *.pyc
 *tmp*
+*.root
+nohup.out
