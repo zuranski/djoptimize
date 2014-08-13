@@ -6,10 +6,11 @@ c.Divide(1,2)
 
 for pdf in reversed(pdfs):
 	sig = pdf.Clone()
-	for i in range(1,pdf.GetNbinsX()):
+	sig.SetBinContent(1,0)
+	for i in range(2,pdf.GetNbinsX()):
 		pvalue = pdf.Integral(i,pdf.GetNbinsX()+1)
 		z = r.RooStats.PValueToSignificance(pvalue)
-	   	sig.SetBinContent(i,z if (pvalue>0. and pvalue<1.) else 0.)
+	   	sig.SetBinContent(i,z if pvalue>0. else 0.)
 	c.cd(1)
 	r.gPad.SetLogy()
 	pdf.Draw()
