@@ -1,14 +1,14 @@
-#include"TH1F.h"
+#include"TH1D.h"
 #include"TRandom2.h"
 #include"TMath.h"
 #include<stdio.h>
 
-TH1F* poisPDFerr(double b,double be,int Ntoys){
+TH1D* poisPDFerr(double b,double be,int Ntoys){
 	// prepare a histogram
 	char name[20];
 	sprintf(name,"%.2f +- %.2f",b,be);
 	int nbins = int(max(b+20*sqrt(b),15.));
-	TH1F *h = new TH1F(name,name,nbins,-0.5,nbins-0.5);
+	TH1D *h = new TH1D(name,name,nbins,-0.5,nbins-0.5);
 	// generate 
 	TRandom2 *rand = new TRandom2();
 	int counter = 0;
@@ -23,12 +23,12 @@ TH1F* poisPDFerr(double b,double be,int Ntoys){
 	return h;
 }
 
-TH1F* poisPDF(double b,int Ntoys){
+TH1D* poisPDF(double b,int Ntoys){
 	// prepare a histogram
 	char name[20];
 	sprintf(name,"%.2f",b);
 	int nbins = int(max(b+20*sqrt(b),15.));
-	TH1F *h = new TH1F(name,name,nbins,-0.5,nbins-0.5);
+	TH1D *h = new TH1D(name,name,nbins,-0.5,nbins-0.5);
 	// generate 
 	TRandom2 *rand = new TRandom2();
 	int counter = 0;
