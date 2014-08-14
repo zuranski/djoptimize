@@ -32,27 +32,19 @@ def optimizeLimit(name):
 	limits = rndAll(sorted(limits, key=itemgetter(0), reverse=False),3)
 	return rnd(limits[0][0],3), limits
 
-def plotRoot(sign,lim):
-	hs,hsl,hl,hls = r.TGraph(len(cuts)),r.TGraph(len(cuts)),r.TGraph(len(cuts)),r.TGraph(len(cuts))
-	hsl.SetFillColor(2); hls.SetFillColor(4), hs.SetFillColor(0)
+def makePlotHistos(sign,lim):
+	[hs,hsl,hl,hls] = [r.TH1F('','',len(cuts),-0.5,len(cuts)-0.5) for i in range(4)]
 	topsigidxs = [s[1] for s in sign[:5]]
 	toplimidxs = [l[1] for l in lim[:5]]
 	for i,(s,l) in enumerate(zip(sign,lim)):
-		hs.SetPoint(hs.GetN(),i,s[0]) 
-		if s[1] in toplimidxs: hsl.SetPoint(hsl.GetN(),i,s[0])
-		hl.SetPoint(hl.GetN(),i,l[0]) 
-		if l[1] in topsigidxs: hls.SetPoint(hls.GetN(),i,l[0])
-		#hsl.GetXaxis().SetBinLabel(i+1,s[2])
-		#hls.GetXaxis().SetBinLabel(i+1,l[2])
-	return hs, hsl, hl, hls
+		hs.SetBinContent(i,s[0]) 
+		if s[1] in toplimidxs: hsl.SetBinContent(i,s[0])
+		hl.SetBinContent(i,l[0]) 
+		if l[1] in topsigidxs: hls.SetBinContent(i,l[0])
+	return hs,hsl,hl,hls
 	
-def plot(sign,lim):
-	sign,lim = np.array(sign),np.array(lim)
-	_,hl,_=plt.hist(np[:,1])
-	plt.plot(hl)
-		
-
-c=r.TCanvas('c','c',600,800);c.Divide(1,2)
+c=r.TCanvas('c','c',700,800);c.Divide(1,2)
+r.gStyle.SetOptStat(0)
 for name in data.keys():
 	if 'H' not in name: continue
 	sigmaSig, sign = optimizeSignificance(name)
@@ -63,5 +55,15 @@ for name in data.keys():
 	print 'signal', name, 'best limit:', sigmaLim
 	for x in lim[:10]: print x
 
-	plot(sign,lim)
+	hs,hsl,hl,hls = makePlotHistos(sign,lim)
+	hs.SetName(name+' significance'); hs.GetYaxis().SetTitle('exp. significance')
+	hl.SetName(name+' expected limits'); hl.GetYaxis().SetTitle('exp. limit [pb]')
+	hs.GetXaxis().SetTitle('ordered selections'); hl.GetXaxis().SetTitle('ordered selctions') 
+	hsl.SetFillColor(2); hls.SetFillColor(4)
+	lat=r.TLatex(); lat.SetTextSize(0.04)
+	c.cd(1);hs.Draw();hsl.Draw("Bsame")
+	lat.DrawLatexNDC(0.15,0.9,name+" exp. significance for #sigma=%fpb"%sigmaSig)
+	c.cd(2);hl.Draw();hls.Draw("Bsame")
+	lat.DrawLatexNDC(0.15,0.9,name+" exp. limit")
+	c.Update()
 	raw_input()
