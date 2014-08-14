@@ -10,8 +10,10 @@ def wrapLim(obj):
 	# obj[0],obj[1] is eff, seff; obj[2],obj[3] is b,sb
 	dirName='tmp/'+str(obj[1])+str(obj[2])
 	os.mkdir(dirName); os.chdir(dirName)
-	limit = r.roostats_cl95(Lumi,0.026*Lumi,obj[0],obj[1],obj[2],obj[3],int(obj[2]),1,0,'cls','',0)
-	#limit = obj[2]	
+	if sys.argv[-1]=='err':
+		limit = r.roostats_cl95(Lumi,0.026*Lumi,obj[0],obj[1],obj[2],obj[3],int(obj[2]),1,0,'cls','',0)
+	else:
+		limit = r.roostats_cl95(Lumi,0.026*Lumi,obj[0],0,obj[2],0,int(obj[2]),1,0,'cls','',0)
 	os.system('rm ws.root')
 	os.chdir('../../')
 	os.rmdir(dirName)
@@ -26,4 +28,4 @@ def optimLim(eff):
 for signal in signals:
 	limits[signal] = optimLim(data[signal])
 
-pickle.dump(limits,open('data/explimits'+sys.argv[1]+'.pkl','w'))
+pickle.dump(limits,open('data/lim'+sys.argv[1]+('err' if sys.argv[-1]=='err' else '')+'.pkl','w'))
