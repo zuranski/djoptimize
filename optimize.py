@@ -32,19 +32,20 @@ def optimizeLimit(name):
 	limits = rndAll(sorted(limits, key=itemgetter(0), reverse=False),3)
 	return rnd(limits[0][0],3), limits
 
-def makePlotHistos(sign,lim):
-	[hs,hsl,hl,hls] = [r.TH1F('','',len(cuts),-0.5,len(cuts)-0.5) for i in range(4)]
-	topsigidxs = [s[1] for s in sign[:5]]
-	toplimidxs = [l[1] for l in lim[:5]]
-	for i,(s,l) in enumerate(zip(sign,lim)):
-		hs.SetBinContent(i,s[0]) 
-		if s[1] in toplimidxs: hsl.SetBinContent(i,s[0])
-		hl.SetBinContent(i,l[0]) 
-		if l[1] in topsigidxs: hls.SetBinContent(i,l[0])
-	return hs,hsl,hl,hls
+def plot(name,sign,lim,sigma):
+	_,ax = plt.subplots(nrows=2,figsize=(8,10), facecolor='w')
+	ax[0].set_ylim(0,6)
+	ax[0].set_xlim(0,72);ax[1].set_xlim(0,72)
+	ax[0].bar(range(len(sign)),[s[0] for s in sign],1,color='w',label=name+' exp. signif. for xsec.='+str(sigma)+'pb')
+	ax[0].bar(range(len(sign)),[(s[0] if s[1] in [l[1] for l in lim[:5]] else 0.) for s in sign],1,color='b',label='5 best limits')
+	ax[0].set_ylabel('exp. significance');ax[0].set_xlabel('ordered selections')
+	ax[0].legend(loc='upper right',frameon=False)
+	ax[1].bar(range(len(lim)),[l[0] for l in lim],1,color='w',label=name+' exp. limit')
+	ax[1].bar(range(len(lim)),[(l[0] if l[1] in [s[1] for s in sign[:5]] else 0.) for l in lim],1,color='r',label='5 best significances')
+	ax[1].set_ylabel('exp. limit [pb]');ax[1].set_xlabel('ordered selections')
+	ax[1].legend(loc='upper center',frameon=False)
+	return plt
 	
-c=r.TCanvas('c','c',700,800);c.Divide(1,2)
-r.gStyle.SetOptStat(0)
 for name in data.keys():
 	if 'H' not in name: continue
 	sigmaSig, sign = optimizeSignificance(name)
@@ -55,15 +56,6 @@ for name in data.keys():
 	print 'signal', name, 'best limit:', sigmaLim
 	for x in lim[:10]: print x
 
-	hs,hsl,hl,hls = makePlotHistos(sign,lim)
-	hs.SetName(name+' significance'); hs.GetYaxis().SetTitle('exp. significance')
-	hl.SetName(name+' expected limits'); hl.GetYaxis().SetTitle('exp. limit [pb]')
-	hs.GetXaxis().SetTitle('ordered selections'); hl.GetXaxis().SetTitle('ordered selctions') 
-	hsl.SetFillColor(2); hls.SetFillColor(4)
-	lat=r.TLatex(); lat.SetTextSize(0.04)
-	c.cd(1);hs.Draw();hsl.Draw("Bsame")
-	lat.DrawLatexNDC(0.15,0.9,name+" exp. significance for #sigma=%fpb"%sigmaSig)
-	c.cd(2);hl.Draw();hls.Draw("Bsame")
-	lat.DrawLatexNDC(0.15,0.9,name+" exp. limit")
-	c.Update()
+	plt.ion()
+	plot(name,sign,lim,sigmaSig).show()
 	raw_input()
